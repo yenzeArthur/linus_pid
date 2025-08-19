@@ -1,6 +1,8 @@
 
 #include "sensors.h"
 
+float k_d, k_i, k_p, output, error, error_prev, integral, derivative;
+long interval; 
 int16_t values_sum;
 static const uint8_t sensor_no = 5;
 static int8_t const weights[sensor_no] = {-2,-1,0,1,2};
@@ -46,4 +48,17 @@ float get_weighted_avg()
     }
 
     return (float)weighted_sum/values_sum;
+}
+
+
+float pid_controller(float sens_avg)
+{
+    error =  set_point - sens_avg;
+
+    integral = integral + (error * interval);
+    derivative = (error - error_prev) / interval;
+    
+    output = (k_p * error) + (k_i * integral) + (k_d * derivative);
+
+    error_prev = error;
 }
